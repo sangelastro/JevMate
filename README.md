@@ -23,6 +23,10 @@ engine behind it.
 
 It plays weakly: the facts keep it away from blunders, but it does not look further than one move ahead.
 
+📖 **[How it works](docs/how-it-works.md)**: why OpenJev does not know chess but can still pick a move, a real
+example with scores, and the **[next steps](docs/how-it-works.md#6-next-steps-improving-openjevs-mind)** to
+make it stronger.
+
 ### Install (Windows)
 
 ```bat
@@ -80,6 +84,11 @@ scacchistico.
   "La mente di OpenJev" mostra le 8 mosse migliori.
 
 Gioca debole: i fatti gli evitano gli errori grossolani, ma non vede più avanti di una mossa.
+
+📖 **[Come funziona](docs/come-funziona.md)**: perché OpenJev non sa giocare a scacchi ma riesce comunque a
+scegliere una mossa, un esempio reale con i punteggi e i
+**[prossimi passi](docs/come-funziona.md#6-prossimi-passi-come-migliorare-la-mente-di-openjev)** per renderlo più
+forte.
 
 ### Installazione (Windows)
 
