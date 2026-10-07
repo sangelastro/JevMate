@@ -140,8 +140,35 @@ Steps **0, 1, 4 and 5 are done**. Measured with `bench.py`: 100 fixed positions 
   equal" over "wins 3") and in quiet positions it makes pointless retreats (Nb1, Ne1), because no fact describes
   them as passive. It still loses to Stockfish at its lowest level, but lasts longer.
 
-**Next:** step 2 (one ply of lookahead as a fact), step 3 (decomposed rubric, to weigh facts better) and a fact
-about passive moves (retreats, pieces going back).
+### Diagnosis of v2 and next steps
+
+`bench/diagnose.py` splits v2-A's loss according to the facts OpenJev had in front of it:
+
+| Case | Positions | Share of the loss | Meaning |
+|---|---|---|---|
+| ✅ good move (< 50 cp) | 42 | 5% | — |
+| **A + B: facts weighed badly** | 16 | **39%** | the better material balance was written in the hypotheses, but the model picked another move |
+| **C: missing facts** | 34 | **43%** | the chosen and the best move had the same balance: no fact told them apart (quiet, positional moves) |
+| D: tactics beyond one move | 8 | 13% | the best move gives up material for a later gain |
+
+Two problems of similar size: a model that **reads but does not weigh**, and hypotheses that **do not say
+enough** when no capture is involved. Next steps, in order:
+
+| # | Change | What it targets | Cost |
+|---|---|---|---|
+| 1 | **Use contradiction too**: score = log P(entailment) − log P(contradiction) instead of P(entailment) alone. "Loses 8" should clearly contradict the rubric: the model already produces this and it is currently thrown away | A + B | minimal |
+| 2 | **Balance first in the hypothesis**: "Overall result" right after the move name instead of at the end; the small model weighs the beginning more | A + B | minimal |
+| 3 | **Positional facts for quiet moves**: change in the piece's mobility, retreat / piece going back, king safety (pawn shield, enemy pieces nearby), piece towards the centre | C | low |
+| 4 | **One ply of lookahead** (roadmap step 2): "after the move White can mate", "White wins a piece with a fork" | D and part of C | medium (≈ 2–3 s per move) |
+| 5 | **4B v5 checkpoint quantised to 4 bits** (≈ 2.5 GB, fits a 6 GB GPU) | A + B, C | medium, compatibility risk |
+| 6 | **More sensitive measurement**: more games, against a random player and against strength-limited Stockfish, for an Elo estimate (0 of 4 does not separate versions) | all | low, but machine time |
+
+**Suggested order:** 1 and 2 (measurable right away), then 3, then 6; 4 and 5 in the next round.
+
+**The line not to cross.** The more "evaluative" facts are added, the more the decision moves from the model to
+the code: with enough lookahead and balances, JevMate would become a small chess engine and OpenJev a rubber stamp.
+The rule so far: **facts describe, they never judge** (no "this move is good"). If the goal becomes playing as
+strongly as possible, steps 4, 5 and roadmap step 7 (trained head) should be reconsidered with this in mind.
 
 ## 7. Beyond chess
 

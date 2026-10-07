@@ -142,8 +142,36 @@ I passi **0, 1, 4 e 5 sono fatti**. Misura con `bench.py`: 100 posizioni fisse (
   di "vinci 3") e nelle posizioni tranquille fa ritirate senza senso (Nb1, Ne1), perché nessun fatto le descrive come
   passive. Contro Stockfish al livello minimo perde ancora, ma resiste più a lungo.
 
-**Prossimi passi:** 2 (una mossa di profondità come fatto), 3 (criterio scomposto, per pesare meglio i fatti) e un
-fatto sulle mosse passive (ritirate, pezzi che tornano indietro).
+### Diagnosi della v2 e prossimi passi
+
+`bench/diagnose.py` divide la perdita della v2-A secondo i fatti che OpenJev aveva davanti:
+
+| Caso | Posizioni | Quota della perdita | Significato |
+|---|---|---|---|
+| ✅ mossa buona (< 50 cp) | 42 | 5% | — |
+| **A + B: fatti pesati male** | 16 | **39%** | il bilancio di materiale migliore era scritto nelle ipotesi, ma il modello ha scelto un'altra mossa |
+| **C: fatti mancanti** | 34 | **43%** | scelta e mossa migliore avevano lo stesso bilancio: nessun fatto le distingueva (mosse tranquille, posizionali) |
+| D: tattica oltre una mossa | 8 | 13% | la mossa migliore sacrifica materiale per un guadagno successivo |
+
+Due problemi di peso simile: un modello che **legge ma non pesa** e ipotesi che **non dicono abbastanza** quando
+non ci sono catture in gioco. Prossimi passi, in ordine:
+
+| # | Intervento | Su cosa agisce | Costo |
+|---|---|---|---|
+| 1 | **Usare anche la contraddizione**: punteggio = log P(entailment) − log P(contraddizione) invece della sola P(entailment). "Perde 8" dovrebbe contraddire il criterio in modo netto: è un'informazione che il modello già produce e oggi viene scartata | A + B | minimo |
+| 2 | **Bilancio in testa all'ipotesi**: "Overall result" subito dopo il nome della mossa invece che in fondo; il modello piccolo pesa di più l'inizio | A + B | minimo |
+| 3 | **Fatti posizionali per le mosse tranquille**: variazione di mobilità del pezzo, ritirata / pezzo che torna indietro, sicurezza del re (pedoni davanti al re, pezzi nemici vicini), pezzo verso il centro | C | basso |
+| 4 | **Una mossa di profondità** (passo 2 della roadmap): "dopo la mossa il Bianco può dare matto", "il Bianco vince un pezzo con una forchetta" | D e parte di C | medio (≈ 2–3 s a mossa) |
+| 5 | **Checkpoint 4B v5 quantizzato a 4 bit** (≈ 2,5 GB, entra in una GPU da 6 GB) | A + B, C | medio, rischio di compatibilità |
+| 6 | **Misura più sensibile**: più partite, contro un giocatore casuale e contro Stockfish a forza limitata, per una stima di Elo (0 su 4 non distingue le versioni) | tutte | basso, ma tempo macchina |
+
+**Ordine consigliato:** 1 e 2 (si misurano subito), poi 3, poi 6; 4 e 5 nel giro successivo.
+
+**Il limite da rispettare.** Più fatti "valutativi" si aggiungono, più la decisione si sposta dal modello al
+codice: con abbastanza profondità e bilanci, JevMate diventerebbe un piccolo motore scacchistico e OpenJev un
+timbro. La regola seguita finora: **i fatti descrivono, non giudicano mai** (nessun "questa mossa è buona"). Se
+l'obiettivo diventa giocare il più forte possibile, i passi 4, 5 e il 7 della roadmap (testa addestrata) vanno
+rivalutati con questa domanda in mente.
 
 ## 7. Oltre gli scacchi
 
