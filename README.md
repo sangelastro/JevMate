@@ -21,7 +21,7 @@ engine behind it.
 - **Choice:** OpenJev gives each hypothesis an entailment probability and the highest one wins. The
   "La mente di OpenJev" panel shows the top 8 moves.
 
-It plays weakly: the facts keep it away from blunders, but it does not look further than one move ahead.
+It plays weakly but measurably better: average loss went from 180 to 99 centipawns per move and blunders from 25% to 12% (see the docs). It does not look further than one move ahead.
 
 📖 **[How it works](docs/how-it-works.md)**: why OpenJev does not know chess but can still pick a move, a real
 example with scores, and the **[next steps](docs/how-it-works.md#6-next-steps-improving-openjevs-mind)** to
@@ -65,6 +65,7 @@ The interface is in Italian.
 | `server.py` | Flask server: rules (python-chess) and API |
 | `static/index.html` | user interface |
 | `scarica_modelli.py` | downloads the checkpoints from Hugging Face |
+| `bench.py` | measures move quality with Stockfish as referee (put `stockfish.exe` in `tools/`) |
 
 ---
 
@@ -83,7 +84,7 @@ scacchistico.
 - **Scelta:** OpenJev dà a ogni ipotesi una probabilità di entailment e vince la più alta. Il pannello
   "La mente di OpenJev" mostra le 8 mosse migliori.
 
-Gioca debole: i fatti gli evitano gli errori grossolani, ma non vede più avanti di una mossa.
+Gioca debole, ma in modo misurabilmente migliore: la perdita media è scesa da 180 a 99 centipedoni a mossa e gli errori gravi dal 25% al 12% (vedi la documentazione). Non vede più avanti di una mossa.
 
 📖 **[Come funziona](docs/come-funziona.md)**: perché OpenJev non sa giocare a scacchi ma riesce comunque a
 scegliere una mossa, un esempio reale con i punteggi e i
@@ -127,6 +128,7 @@ Per arroccare: re → g1/c1. Opzioni: gioca coi neri, annulla, voce dei comandi 
 | `server.py` | server Flask: regole (python-chess) e API |
 | `static/index.html` | interfaccia |
 | `scarica_modelli.py` | download dei checkpoint da Hugging Face |
+| `bench.py` | misura la qualità delle mosse con Stockfish come arbitro (mettere `stockfish.exe` in `tools/`) |
 
 ---
 

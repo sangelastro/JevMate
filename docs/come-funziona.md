@@ -120,6 +120,31 @@ le prove e non si decide al posto suo.
 **Ordine consigliato:** 0 → 1 → 2 → 4. Sono economici, restano fedeli all'idea (il modello sceglie, il codice
 racconta) e coprono i difetti visti finora. Il 7 cambia la natura dell'esperimento: da valutare a parte.
 
+### Risultati misurati (ottobre 2026)
+
+I passi **0, 1, 4 e 5 sono fatti**. Misura con `bench.py`: 100 posizioni fisse (33 di apertura, 45 di mediogioco,
+22 di finale), Stockfish 19 a profondità 12 come arbitro, modello 0.8B.
+
+| Versione | ACPL tutte | Apertura | Mediogioco | Finale | Errori gravi (≥ 200 cp) | vs Stockfish livello 0 |
+|---|---|---|---|---|---|---|
+| v1: prima versione | 180 | 138 | 219 | 162 | 25% | 0 su 4 |
+| **v2, criterio A** (predefinito) | **99** | **75** | 126 | **80** | **12%** | 0 su 4 |
+| v2, criterio B | 115 | 121 | 121 | 94 | 15% | 0 su 4 |
+
+*ACPL = perdita media in centipedoni rispetto alla mossa migliore (100 = un pedone; più bassa è meglio).*
+
+- **Il bilancio degli scambi** (passo 1) è il cambiamento più efficace: l'ipotesi di Qxd3 nell'esempio sopra ora
+  dice *"After it White can win 9 by capturing on d3. Overall result: Black loses 8 points of material"*.
+- **I criteri per fase** (passo 4) dimezzano l'errore in apertura e nel finale.
+- **La formulazione** (passo 5) conta: il criterio B ("prima il bilancio di materiale") fa peggio dell'A,
+  soprattutto in apertura.
+- **Cosa resta:** il modello 0.8B a volte non pesa i fatti che ha davanti (sceglie "il materiale resta pari" invece
+  di "vinci 3") e nelle posizioni tranquille fa ritirate senza senso (Nb1, Ne1), perché nessun fatto le descrive come
+  passive. Contro Stockfish al livello minimo perde ancora, ma resiste più a lungo.
+
+**Prossimi passi:** 2 (una mossa di profondità come fatto), 3 (criterio scomposto, per pesare meglio i fatti) e un
+fatto sulle mosse passive (ritirate, pezzi che tornano indietro).
+
 ## 7. Oltre gli scacchi
 
 Lo schema è generale e si applica a qualunque decisione con un insieme chiuso di opzioni:

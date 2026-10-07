@@ -119,6 +119,30 @@ place.
 **Suggested order:** 0 → 1 → 2 → 4. They are cheap, stay true to the idea (the model chooses, the code tells) and
 cover the weaknesses seen so far. Step 7 changes the nature of the experiment and deserves a separate decision.
 
+### Measured results (October 2026)
+
+Steps **0, 1, 4 and 5 are done**. Measured with `bench.py`: 100 fixed positions (33 opening, 45 middlegame,
+22 endgame), Stockfish 19 at depth 12 as referee, 0.8B model.
+
+| Version | ACPL all | Opening | Middlegame | Endgame | Blunders (≥ 200 cp) | vs Stockfish level 0 |
+|---|---|---|---|---|---|---|
+| v1: first version | 180 | 138 | 219 | 162 | 25% | 0 of 4 |
+| **v2, rubric A** (default) | **99** | **75** | 126 | **80** | **12%** | 0 of 4 |
+| v2, rubric B | 115 | 121 | 121 | 94 | 15% | 0 of 4 |
+
+*ACPL = average centipawn loss against the best move (100 = one pawn; lower is better).*
+
+- **Exchange balance** (step 1) is the most effective change: the Qxd3 hypothesis in the example above now says
+  *"After it White can win 9 by capturing on d3. Overall result: Black loses 8 points of material"*.
+- **Rubrics per phase** (step 4) halve the error in the opening and in the endgame.
+- **Wording** (step 5) matters: rubric B ("material balance first") does worse than A, especially in the opening.
+- **What is left:** the 0.8B model sometimes does not weigh the facts in front of it (it picks "material stays
+  equal" over "wins 3") and in quiet positions it makes pointless retreats (Nb1, Ne1), because no fact describes
+  them as passive. It still loses to Stockfish at its lowest level, but lasts longer.
+
+**Next:** step 2 (one ply of lookahead as a fact), step 3 (decomposed rubric, to weigh facts better) and a fact
+about passive moves (retreats, pieces going back).
+
 ## 7. Beyond chess
 
 The pattern is general and works for any decision over a closed set of options:
